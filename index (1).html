@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HLS Video Player</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .player {
+      max-width: 720px;
+      margin: 30px auto;
+      background: #222;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    video {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .controls > * {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>HLS Video Player</h1>  <div class="player">
+    <div id="video-container"></div>
+    <div class="controls">
+      <button onclick="seek(-15)"><< 15s</button>
+      <button onclick="seek(15)">15s >></button>
+      <label>Speed:
+        <select onchange="changeSpeed(this.value)">
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </label>
+      <label id="qualityWrapper" style="display:none;">Quality:
+        <select id="qualitySelector"></select>
+      </label>
+    </div>
+  </div>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  <script>
+    const videoSrc = "https://shadowlink.site/api/pw-live/livpw.php?base_url=https://d3qbbq6h3vax2u.cloudfront.net/&start=1744979400&qua=index_7.m3u8&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kM3FiYnE2aDN2YXgydS5jbG91ZGZyb250Lm5ldC8qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzQ0OTk1NzU5fX19XX0_&Key-Pair-Id=APKAXVKMENFCRKTG5XE2&Signature=dcU9FQfcPwsA6YYfCqqoTzXVDx-amLNCIN9MjVQNZwzM1MZ1dKx7vf8MJVeKIkZkm8xEzWE5EFHexAeGah0T7Twa~3OqUpHvHbAsxHZj5A2lgpsiHDiK1sxmRkRToXoIQZaWvAN~Sc05wP0GocsbPpNkPqxQtGTmBoCs135OZVG99WwCzea~AnAc43AMAH31k-87BTMgPtchyqf8KrQrXVEzOJOSQVJEcZdTR3SAY766DjyK7xBcJkV4kyyFupwKQXxDEmwgu6XTyqAM0Zfnb0t4BnDdSC-WMpTgFqWoPRSbFjnx1uUeFlC~7-B~txIFz~NEn2fg4aRrOutDimAXqg__";
+
+    function loadVideo() {
+      const container = document.getElementById('video-container');
+      container.innerHTML = '';
+      document.getElementById('qualityWrapper').style.display = 'none';
+
+      const video = document.createElement('video');
+      video.setAttribute('id', 'video');
+      video.setAttribute('controls', true);
+      video.setAttribute('crossorigin', 'anonymous');
+      video.setAttribute('controlsList', 'nodownload');
+      container.appendChild(video);
+
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        const selector = document.getElementById('qualitySelector');
+        selector.innerHTML = '';
+        document.getElementById('qualityWrapper').style.display = 'inline-block';
+
+        hls.levels.forEach((level, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.text = `${level.height}p`;
+          selector.appendChild(opt);
+        });
+
+        selector.addEventListener('change', () => {
+          hls.currentLevel = parseInt(selector.value);
+        });
+      });
+
+      window.seek = (s) => video.currentTime += parseFloat(s);
+      window.changeSpeed = (speed) => video.playbackRate = speed;
+      video.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    loadVideo();
+  </script></body>
+</html>
