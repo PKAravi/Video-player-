@@ -1,97 +1,154 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HLS Video Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced HLS Player</title>
   <style>
     body {
-      background: #111;
+      background-color: #121212;
       color: #fff;
       font-family: Arial, sans-serif;
-      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .player {
-      max-width: 720px;
-      margin: 30px auto;
-      background: #222;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    .player-container {
+      width: 80%;
+      max-width: 960px;
+      text-align: center;
     }
     video {
       width: 100%;
+      border: 2px solid #444;
       border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
     .controls {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
       margin-top: 10px;
     }
-    .controls > * {
+    button, select {
+      background-color: #1db954;
+      border: none;
+      padding: 10px 15px;
       margin: 5px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    select {
+      background-color: #333;
+      color: #fff;
     }
   </style>
 </head>
 <body>
-  <h1>HLS Video Player</h1>  <div class="player">
-    <div id="video-container"></div>
+
+  <div class="player-container">
+    <video id="video" controls autoplay></video>
     <div class="controls">
-      <button onclick="seek(-15)"><< 15s</button>
-      <button onclick="seek(15)">15s >></button>
-      <label>Speed:
-        <select onchange="changeSpeed(this.value)">
-          <option value="0.5">0.5x</option>
-          <option value="1" selected>1x</option>
-          <option value="1.5">1.5x</option>
-          <option value="2">2x</option>
-        </select>
-      </label>
-      <label id="qualityWrapper" style="display:none;">Quality:
-        <select id="qualitySelector"></select>
-      </label>
+      <button onclick="skip(-10)"><< 10s</button>
+      <button onclick="togglePlay()">Play/Pause</button>
+      <button onclick="skip(10)">10s >></button>
     </div>
-  </div>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  <script>
-    const videoSrc = "https://shadowlink.site/api/pw-live/livpw.php?base_url=https://d3qbbq6h3vax2u.cloudfront.net/&start=1744979400&qua=index_7.m3u8&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kM3FiYnE2aDN2YXgydS5jbG91ZGZyb250Lm5ldC8qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzQ0OTk1NzU5fX19XX0_&Key-Pair-Id=APKAXVKMENFCRKTG5XE2&Signature=dcU9FQfcPwsA6YYfCqqoTzXVDx-amLNCIN9MjVQNZwzM1MZ1dKx7vf8MJVeKIkZkm8xEzWE5EFHexAeGah0T7Twa~3OqUpHvHbAsxHZj5A2lgpsiHDiK1sxmRkRToXoIQZaWvAN~Sc05wP0GocsbPpNkPqxQtGTmBoCs135OZVG99WwCzea~AnAc43AMAH31k-87BTMgPtchyqf8KrQrXVEzOJOSQVJEcZdTR3SAY766DjyK7xBcJkV4kyyFupwKQXxDEmwgu6XTyqAM0Zfnb0t4BnDdSC-WMpTgFqWoPRSbFjnx1uUeFlC~7-B~txIFz~NEn2fg4aRrOutDimAXqg__";
+    <div class="controls">
+      <label for="qualitySelector">Quality:</label>
+      <select id="qualitySelector" onchange="setQuality(this.value)">
+        <option value="auto">Auto</option>
+      </select>
 
-    function loadVideo() {
-      const container = document.getElementById('video-container');
-      container.innerHTML = '';
-      document.getElementById('qualityWrapper').style.display = 'none';
+      <label for="speedSelector">Speed:</label>
+      <select id="speedSelector" onchange="setPlaybackSpeed(this.value)">
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.25">1.25x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+      </select>
+    </div>
+  </div>
 
-      const video = document.createElement('video');
-      video.setAttribute('id', 'video');
-      video.setAttribute('controls', true);
-      video.setAttribute('crossorigin', 'anonymous');
-      video.setAttribute('controlsList', 'nodownload');
-      container.appendChild(video);
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('video');
+    const qualitySelector = document.getElementById('qualitySelector');
+    const streamURL = 'https://shadowlink.site/api/pw-live/livpw.php?base_url=https://d12uljox5omx6j.cloudfront.net/&start=1745238600&qua=index_1.m3u8&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMTJ1bGpveDVvbXg2ai5jbG91ZGZyb250Lm5ldC8qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzQ1MjU0NDI3fX19XX0_&Key-Pair-Id=APKAXVKMENFCRKTG5XE2&Signature=OqlImmGwb2HSLFqqiZr28P51JU8ibjmikKoxMC-TNWkzR85HmCvtB5X1UROiCV5-cig4KLgiSWhKyVlN-LDwVKCtfjCyLf5H5ACd~AipIHka7KbZ2ah9SlQ0-xqbKKkMbY51eLMdW4xryhnnTZ8oq-I1Oo9pmKn~-OoVYB3OS9nPPQZ0T~kq4dqTC-ZnlcFtgLoO-kJq9rgaWcu01~9ioGqDfzKxtZZQeozpty9Oa4FfCUf2~tckDTE1JUWElnr~hmy4NHfxsTN9pv-pesYsdHdMachU8ItOPxEoSaJz2vHFkigSxkP8yGn0safh4E0Tp5zsy0ELCs70QwN4h8wEUA__'; // Replace with your own HLS stream
+    let hls;
 
-      const hls = new Hls();
-      hls.loadSource(videoSrc);
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        const selector = document.getElementById('qualitySelector');
-        selector.innerHTML = '';
-        document.getElementById('qualityWrapper').style.display = 'inline-block';
-
-        hls.levels.forEach((level, i) => {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.text = `${level.height}p`;
-          selector.appendChild(opt);
+    function initPlayer() {
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
         });
 
-        selector.addEventListener('change', () => {
-          hls.currentLevel = parseInt(selector.value);
-        });
-      });
+        hls.loadSource(streamURL);
+        hls.attachMedia(video);
 
-      window.seek = (s) => video.currentTime += parseFloat(s);
-      window.changeSpeed = (speed) => video.playbackRate = speed;
-      video.addEventListener('contextmenu', (e) => e.preventDefault());
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          updateQualityLevels();
+        });
+
+        hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+          console.log('Switched to quality level:', data.level);
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.error('Network error, trying to recover...');
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.error('Media error, trying to recover...');
+                hls.recoverMediaError();
+                break;
+              default:
+                hls.destroy();
+                break;
+            }
+          }
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamURL;
+      }
     }
 
-    loadVideo();
-  </script></body>
-</html>
+    function updateQualityLevels() {
+      const levels = hls.levels;
+      qualitySelector.innerHTML = '<option value="auto">Auto</option>';
+      levels.forEach((level, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.text = `${level.height}p`;
+        qualitySelector.appendChild(option);
+      });
+    }
+
+    function setQuality(value) {
+      hls.currentLevel = value === 'auto' ? -1 : parseInt(value);
+    }
+
+    function togglePlay() {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+
+    function skip(seconds) {
+      video.currentTime += seconds;
+    }
+
+    function setPlaybackSpeed(speed) {
+      video.playbackRate = parseFloat(speed);
+    }
+
+    initPlayer();
+  </script>
+
+</body>
+      </html>
