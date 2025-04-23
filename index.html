@@ -55,7 +55,7 @@
     <div class="controls">
       <label for="qualitySelector">Quality:</label>
       <select id="qualitySelector" onchange="setQuality(this.value)">
-        <option value="auto">Auto</option>
+        <option value="auto">Auto</option>04
       </select>
 
       <label for="speedSelector">Speed:</label>
@@ -73,7 +73,7 @@
   <script>
     const video = document.getElementById('video');
     const qualitySelector = document.getElementById('qualitySelector');
-    const streamURL = 'https://shadowlink.site/api/pw-live/livpw.php?base_url=https://d12uljox5omx6j.cloudfront.net/&start=1745238600&qua=index_1.m3u8&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMTJ1bGpveDVvbXg2ai5jbG91ZGZyb250Lm5ldC8qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzQ1MjU0NDI3fX19XX0_&Key-Pair-Id=APKAXVKMENFCRKTG5XE2&Signature=OqlImmGwb2HSLFqqiZr28P51JU8ibjmikKoxMC-TNWkzR85HmCvtB5X1UROiCV5-cig4KLgiSWhKyVlN-LDwVKCtfjCyLf5H5ACd~AipIHka7KbZ2ah9SlQ0-xqbKKkMbY51eLMdW4xryhnnTZ8oq-I1Oo9pmKn~-OoVYB3OS9nPPQZ0T~kq4dqTC-ZnlcFtgLoO-kJq9rgaWcu01~9ioGqDfzKxtZZQeozpty9Oa4FfCUf2~tckDTE1JUWElnr~hmy4NHfxsTN9pv-pesYsdHdMachU8ItOPxEoSaJz2vHFkigSxkP8yGn0safh4E0Tp5zsy0ELCs70QwN4h8wEUA__'; // Replace with your own HLS stream
+    const streamURL = 'https://test-api-stream.vercel.app/hls?v=01881661-eec7-4223-83a4-9f7d91fb57de&quality=480&type=play'; // Replace with your own HLS stream
     let hls;
 
     function initPlayer() {
